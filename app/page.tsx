@@ -1,4 +1,3 @@
-import AddTodoModal from '@/components/dialog/add-todo-modal';
 import Header from '@/components/header';
 import TodoBody from '@/components/todo-body';
 export default function DefaultPage() {
@@ -8,7 +7,6 @@ export default function DefaultPage() {
         <Header />
         <TodoBody />
       </div>
-      <AddTodoModal />
     </>
   );
 }

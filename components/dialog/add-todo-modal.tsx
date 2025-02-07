@@ -1,18 +1,18 @@
 'use client';
-import React from 'react';
+import React, {useState} from 'react';
 import {Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle} from '../ui/dialog';
 import {Label} from '../ui/label';
 import {Input} from '../ui/input';
 import {Button} from '../ui/button';
-import useAddTodoModalStore from '@/store/add-todo-modal-store';
 import useTodoStore from '@/store/todo-store';
-import {DialogDescription} from '@radix-ui/react-dialog';
+import {DialogDescription, DialogTrigger} from '@radix-ui/react-dialog';
 import {toast} from 'sonner';
 import {Textarea} from '../ui/textarea';
+import {Plus} from 'lucide-react';
 
 export default function AddTodoModal() {
-  const {toggleModal, isOpen} = useAddTodoModalStore((state) => state);
   const addTodo = useTodoStore((state) => state.addTodo);
+  const [isOpen, setIsOpen] = useState<boolean>(false);
 
   const handleOnAddTodoSubmit = (formData: FormData) => {
     const taskName = formData.get('taskName') as string;
@@ -33,17 +33,27 @@ export default function AddTodoModal() {
       status: 'On Going',
       id: Math.random() * (5000 - 1) + 1
     });
-    toggleModal();
     toast.success('Task Added', {
       position: 'top-center',
       richColors: true
     });
+    setIsOpen(false);
   };
   return (
     <Dialog
-      open={isOpen}
-      onOpenChange={toggleModal}>
-      <DialogContent className='sm:max-w-[425px]'>
+      onOpenChange={(e) => setIsOpen(e)}
+      open={isOpen}>
+      <DialogTrigger asChild>
+        <Button>
+          <Plus
+            size={60}
+            strokeWidth={5}
+          />
+        </Button>
+      </DialogTrigger>
+      <DialogContent
+        className='sm:max-w-[425px]'
+        onInteractOutside={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>Add Task</DialogTitle>
           <DialogDescription>Add Task</DialogDescription>
