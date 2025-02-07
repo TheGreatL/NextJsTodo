@@ -25,7 +25,7 @@ export default function TodoBody() {
   }
   return (
     <DndContext onDragEnd={handleDragEnd}>
-      <section className='flex flex-1 gap-3 bg-gray-100 p-5'>
+      <section className='flex flex-1 flex-col gap-3 bg-gray-100 p-5 lg:flex-row'>
         <AddTodoModal />
         <ScrollArea className='flex flex-1 flex-col gap-2 bg-white text-black'>
           <h1 className='text-center text-2xl font-semibold'>Ongoing Task</h1>
