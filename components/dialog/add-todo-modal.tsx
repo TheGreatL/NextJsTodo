@@ -30,8 +30,8 @@ export default function AddTodoModal() {
       taskName,
       taskNote,
       createdAt: new Date(),
-      status: 'On Going',
-      id: Math.random() * (5000 - 1) + 1
+      status: 'Unstarted',
+      id: Math.round(Math.random() * (5000 - 1) + 1)
     });
     toast.success('Task Added', {
       position: 'top-center',

@@ -1,6 +1,6 @@
 import {create} from 'zustand';
 
-type Status = 'On Going' | 'Completed';
+export type Status = 'Unstarted' | 'On Going' | 'Completed';
 export interface TodoType {
   id: number;
   taskName: string;
@@ -11,8 +11,9 @@ export interface TodoType {
 type TodoStore = {
   todos: TodoType[];
   addTodo: (newTodo: TodoType) => void;
-  updateTodo: (todoId: number) => void;
+  updateTodo: (todoId: number, newTodoStatus: Status) => void;
   deleteTodo: (todoId: number) => void;
+  reArrangeTodo: (reArrangedTodo: TodoType[]) => void;
 };
 
 const useTodoStore = create<TodoStore>((set) => ({
@@ -22,14 +23,14 @@ const useTodoStore = create<TodoStore>((set) => ({
       ...prevState,
       todos: [{...newTodo}, ...prevState.todos]
     })),
-  updateTodo: (todoId) =>
+  updateTodo: (todoId, newTodoStatus) =>
     set((prevState) => ({
       ...prevState,
       todos: prevState.todos.map((todo) => {
         if (todo.id == todoId) {
           return {
             ...todo,
-            status: 'Completed'
+            status: newTodoStatus
           };
         }
         return todo;
@@ -39,6 +40,11 @@ const useTodoStore = create<TodoStore>((set) => ({
     set((prevState) => ({
       ...prevState,
       todos: prevState.todos.filter((todo) => todo.id !== todoId)
+    })),
+  reArrangeTodo: (reArrangedTodo) =>
+    set((prevState) => ({
+      ...prevState,
+      todos: reArrangedTodo
     }))
 }));
 export default useTodoStore;
