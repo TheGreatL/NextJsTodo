@@ -35,7 +35,11 @@ export default function TodoBody() {
   const [activeTodo, setActiveTodo] = useState<TodoType | undefined>(undefined);
   const sensors = useSensors(
     useSensor(MouseSensor),
-    useSensor(TouchSensor, {}),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        distance: 3
+      }
+    }),
     useSensor(PointerSensor, {
       activationConstraint: {
         distance: 3

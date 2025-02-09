@@ -2,11 +2,11 @@ import {TodoType} from '@/store/todo-store';
 import {formatDate} from '@/util/date-helper';
 import {useSortable} from '@dnd-kit/sortable';
 import {CSS} from '@dnd-kit/utilities';
-import {Check, Circle, Loader, Pencil} from 'lucide-react';
-import {Button} from './ui/button';
+import {Check, Circle, Loader} from 'lucide-react';
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from './ui/card';
 import DeleteTodoModal from './dialog/delete-todo-modal';
 import {useState} from 'react';
+import EditTodoModal from './dialog/edit-todo-modal';
 
 type TodoTaskProps = {
   todoItems: TodoType;
@@ -54,6 +54,7 @@ export default function TodoTask({todoItems}: TodoTaskProps) {
     const eventName = event.type.toString() as string;
     setIsHovering(eventName === 'mouseenter');
   };
+  console.log(isHovering);
   return (
     <Card
       ref={setNodeRef}
@@ -62,20 +63,18 @@ export default function TodoTask({todoItems}: TodoTaskProps) {
       {...listeners}
       onMouseEnter={onMouseHover}
       onMouseLeave={onMouseHover}
-      className={`my-2 cursor-grab ${isDragging ? 'opacity-40' : ''}`}>
+      className={`my-2 cursor-grab touch-none break-words lg:w-[25rem] ${isDragging ? 'opacity-40' : ''}`}>
       <CardHeader>
         <CardTitle>
           <div className='flex items-center'>
             <h1 className='flex-1 text-2xl'>{taskName}</h1>
 
-            {isHovering && (
-              <div className='space-x-5'>
-                <DeleteTodoModal todoId={id} />
-                <Button size={'icon'}>
-                  <Pencil />
-                </Button>
-              </div>
-            )}
+            {/* {isHovering && ( */}
+            <div className='space-x-5'>
+              <DeleteTodoModal todoId={id} />
+              <EditTodoModal todoItem={todoItems} />
+            </div>
+            {/* )} */}
           </div>
         </CardTitle>
         <CardDescription>
