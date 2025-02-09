@@ -11,7 +11,6 @@ type Props = {
 };
 
 export default function TodoColumn({title, todoItems, typeName}: Props) {
-  // const isOver = true;
   const todoId = useMemo(() => todoItems.map((todo) => todo.id), [todoItems]);
 
   const {setNodeRef, isOver} = useDroppable({

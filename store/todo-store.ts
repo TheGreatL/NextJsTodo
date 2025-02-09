@@ -1,13 +1,13 @@
 import {create} from 'zustand';
 
 export type Status = 'Unstarted' | 'On Going' | 'Completed';
-export interface TodoType {
+export type TodoType = {
   id: number;
   taskName: string;
   taskNote: string;
   createdAt: Date;
   status: Status;
-}
+};
 type TodoStore = {
   todoItems: TodoType[];
   addTodo: (newTodo: TodoType) => void;

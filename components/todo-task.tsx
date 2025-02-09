@@ -5,7 +5,6 @@ import {CSS} from '@dnd-kit/utilities';
 import {Check, Circle, Loader} from 'lucide-react';
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from './ui/card';
 import DeleteTodoModal from './dialog/delete-todo-modal';
-import {useState} from 'react';
 import EditTodoModal from './dialog/edit-todo-modal';
 
 type TodoTaskProps = {
@@ -25,15 +24,12 @@ export default function TodoTask({todoItems}: TodoTaskProps) {
     transform: CSS.Transform.toString(transform),
     transition
   };
-  const [isHovering, setIsHovering] = useState(false);
-
   let statusIcon = (
     <Circle
       color='red'
       strokeWidth={3}
     />
   );
-
   if (status === 'Completed') {
     statusIcon = (
       <Check
@@ -50,40 +46,30 @@ export default function TodoTask({todoItems}: TodoTaskProps) {
     );
   }
 
-  const onMouseHover = (event: React.MouseEvent<HTMLDivElement>) => {
-    const eventName = event.type.toString() as string;
-    setIsHovering(eventName === 'mouseenter');
-  };
-  console.log(isHovering);
   return (
     <Card
       ref={setNodeRef}
       style={style}
       {...attributes}
       {...listeners}
-      onMouseEnter={onMouseHover}
-      onMouseLeave={onMouseHover}
-      className={`my-2 cursor-grab touch-none break-words lg:w-[25rem] ${isDragging ? 'opacity-40' : ''}`}>
+      className={`my-2 cursor-grab touch-none break-words ${isDragging ? 'opacity-40' : ''}`}>
       <CardHeader>
         <CardTitle>
           <div className='flex items-center'>
             <h1 className='flex-1 text-2xl'>{taskName}</h1>
-
-            {/* {isHovering && ( */}
             <div className='space-x-5'>
               <DeleteTodoModal todoId={id} />
               <EditTodoModal todoItem={todoItems} />
             </div>
-            {/* )} */}
           </div>
         </CardTitle>
         <CardDescription>
-          {date} {time}
+          <p>{time}</p>
+          <p>{date}</p>
         </CardDescription>
       </CardHeader>
       <CardContent>
         <div className='flex flex-col'>
-          <span>ID: {id}</span>
           <span className='flex items-center gap-2'>Status: {statusIcon}</span>
           <span>Note: {taskNote}</span>
         </div>

@@ -19,7 +19,7 @@ import AddTodoModal from './dialog/add-todo-modal';
 import {arrayMove, sortableKeyboardCoordinates} from '@dnd-kit/sortable';
 
 import TodoColumn from './todo-column';
-import {useMemo, useState} from 'react';
+import {useState} from 'react';
 import TodoTask from './todo-task';
 
 const todoColumns: {
@@ -99,16 +99,6 @@ export default function TodoBody() {
     reArrangeTodo(arrayMove(todoItems, activeTodoIndex, overTodoIndex));
   }
 
-  const columnMemo = useMemo(() => {
-    return todoColumns.map((column) => (
-      <TodoColumn
-        key={column.typeName}
-        title={column.title}
-        typeName={column.typeName}
-        todoItems={todoItems.filter((todoItem) => todoItem.status === column.typeName)}
-      />
-    ));
-  }, [todoItems]);
   return (
     <>
       <AddTodoModal />
@@ -119,7 +109,14 @@ export default function TodoBody() {
           onDragEnd={handleDragEnd}
           sensors={sensors}
           collisionDetection={closestCenter}>
-          {columnMemo}
+          {todoColumns.map((column) => (
+            <TodoColumn
+              key={column.typeName}
+              title={column.title}
+              typeName={column.typeName}
+              todoItems={todoItems.filter((todoItem) => todoItem.status === column.typeName)}
+            />
+          ))}
           <DragOverlay>{activeTodo && <TodoTask todoItems={activeTodo} />}</DragOverlay>,
         </DndContext>
       </section>
