@@ -1,45 +1,40 @@
-import React from 'react';
-import ScrollContainer from './scroll-container';
-import {rectSortingStrategy, SortableContext, verticalListSortingStrategy} from '@dnd-kit/sortable';
 import {Status, TodoType} from '@/store/todo-store';
 import TodoTask from './todo-task';
-import {DragOverlay, useDraggable, useDroppable} from '@dnd-kit/core';
+import {SortableContext} from '@dnd-kit/sortable';
+import {useMemo} from 'react';
+import {useDroppable} from '@dnd-kit/core';
 
 type Props = {
   title: string;
   typeName: Status;
-  todoData: TodoType[];
+  todoItems: TodoType[];
 };
 
-export default function TodoColumn({title, todoData, typeName}: Props) {
-  const data = todoData.filter((todo) => todo.status === typeName);
-  let backgroundColor = 'bg-gray-200';
-  if (typeName === 'On Going') backgroundColor = 'bg-gray-300';
-  else if (typeName === 'Completed') backgroundColor = 'bg-gray-400';
+export default function TodoColumn({title, todoItems, typeName}: Props) {
+  // const isOver = true;
+  const todoId = useMemo(() => todoItems.map((todo) => todo.id), [todoItems]);
 
   const {setNodeRef, isOver} = useDroppable({
-    id: typeName
+    id: typeName,
+    data: {
+      type: 'column',
+      typeName
+    }
   });
+
   return (
-    <>
-      <ScrollContainer
-        title={title}
-        backgroundColor={isOver ? 'bg-red-200' : backgroundColor}>
-        <div
-          ref={setNodeRef}
-          className='z-0 flex flex-1 flex-col gap-5 pl-1 pr-2'>
-          <SortableContext
-            items={data}
-            strategy={rectSortingStrategy}>
-            {data.map((todo) => (
-              <TodoTask
-                todoData={todo}
-                key={todo.id}
-              />
-            ))}
-          </SortableContext>
-        </div>
-      </ScrollContainer>
-    </>
+    <div
+      ref={setNodeRef}
+      className={`flex flex-1 flex-col rounded-xl ${isOver ? 'bg-gray-200' : 'bg-white'} py-2 pb-5`}>
+      <h1 className='text-center text-2xl font-semibold'>{title}</h1>
+      <SortableContext items={todoId}>
+        {todoItems.map((todo) => (
+          <TodoTask
+            key={todo.id}
+            todoItems={todo}
+          />
+        ))}
+      </SortableContext>
+    </div>
   );
 }

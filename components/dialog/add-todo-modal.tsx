@@ -4,7 +4,7 @@ import {Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle} from '..
 import {Label} from '../ui/label';
 import {Input} from '../ui/input';
 import {Button} from '../ui/button';
-import useTodoStore from '@/store/todo-store';
+import useTodoStore, {Status} from '@/store/todo-store';
 import {DialogDescription, DialogTrigger} from '@radix-ui/react-dialog';
 import {toast} from 'sonner';
 import {Textarea} from '../ui/textarea';
@@ -73,6 +73,7 @@ export default function AddTodoModal() {
             rows={5}
             className='resize-none'
           />
+
           <DialogFooter>
             <Button type='submit'>Add Task</Button>
           </DialogFooter>

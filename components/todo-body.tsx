@@ -1,6 +1,6 @@
 'use client';
 
-import useTodoStore, {Status} from '@/store/todo-store';
+import useTodoStore, {Status, TodoType} from '@/store/todo-store';
 import {
   DndContext,
   DragEndEvent,
@@ -10,13 +10,17 @@ import {
   useSensors,
   TouchSensor,
   MouseSensor,
-  closestCenter
+  closestCenter,
+  DragStartEvent,
+  DragOverlay
 } from '@dnd-kit/core';
 
 import AddTodoModal from './dialog/add-todo-modal';
 import {arrayMove, sortableKeyboardCoordinates} from '@dnd-kit/sortable';
 
 import TodoColumn from './todo-column';
+import {useMemo, useState} from 'react';
+import TodoTask from './todo-task';
 
 const todoColumns: {
   title: string;
@@ -27,70 +31,94 @@ const todoColumns: {
   {title: 'Completed Task', typeName: 'Completed'}
 ];
 export default function TodoBody() {
-  const {todos: todoItems, updateTodo, reArrangeTodo} = useTodoStore((state) => state);
-
+  const {todoItems, updateTodo, reArrangeTodo} = useTodoStore((state) => state);
+  const [activeTodo, setActiveTodo] = useState<TodoType | undefined>(undefined);
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(MouseSensor),
+    useSensor(TouchSensor, {}),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 3
+      }
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates
-    }),
-    useSensor(TouchSensor),
-    useSensor(MouseSensor)
+    })
   );
 
-  function handleDragEnd(event: DragEndEvent) {
-    const {over, active} = event;
+  function handleDragOver(event: DragEndEvent) {
+    const {active, over} = event;
+    if (!over) return;
 
-    if (!over) {
+    const activeTodoId = active.id as number;
+    const overTodoId = over.id as number | Status;
+    if (activeTodoId === overTodoId) return;
+
+    const isActiveTask = active.data.current?.type === 'task';
+    const isOverTask = over.data.current?.type === 'task';
+
+    if (!isActiveTask) return;
+
+    if (isActiveTask && isOverTask) {
+      const activeIndex = todoItems.findIndex((todo) => todo.id === activeTodoId);
+      const overIndex = todoItems.findIndex((todo) => todo.id === overTodoId);
+
+      updateTodo(todoItems[activeIndex].id, todoItems[overIndex].status);
       return;
     }
-    // console.log(active.id, over.id, event);
-    // const itemStatus = todoItems.find((item) => item.id === active.id);
-    // console.log(itemStatus);
-    // if (
-    //   active.id !== over.id &&
-    //   itemStatus?.status !== over.id &&
-    //   (over.id === 'Unstarted' || over.id === 'On Going' || over.id === 'Completed')
-    // ) {
-    //   console.log(true);
-    //   const todoId = active.id as number;
-    //   const newTodoStatus = over.id as Status;
-    //
-    // }
-    console.log(over, active);
-    if (active.id === over.id) return;
+    const isOverColumn = over.data?.current?.type === 'column';
 
-    if (over.id === 'On Going' || over.id === 'Unstarted' || over.id === 'Completed') {
-      // Move to different Columns
-      console.log(active, over);
-      const todoId = active.id as number;
-      const newTodoStatus = over.id as Status;
-      updateTodo(todoId, newTodoStatus);
-      return;
+    if (isActiveTask && isOverColumn) {
+      const activeIndex = todoItems.findIndex((todo) => todo.id === activeTodoId);
+      updateTodo(todoItems[activeIndex].id, overTodoId as Status);
     }
 
-    const activeIndex = active.data?.current?.sortable.index;
-    const overIndex = over.data?.current?.sortable.index;
-
-    reArrangeTodo(arrayMove(todoItems, activeIndex, overIndex));
+    // const
   }
+  function handleDragStart(event: DragStartEvent) {
+    if (event.active?.data.current?.type === 'task') {
+      setActiveTodo(event.active.data.current.todoItems);
+      return;
+    }
+  }
+  function handleDragEnd(event: DragEndEvent) {
+    setActiveTodo(undefined);
+    const {active, over} = event;
+    if (!over) return;
+
+    const activeTodoId = active.id as number;
+    const overTodoId = over.id as number;
+    if (activeTodoId === overTodoId) return;
+
+    const activeTodoIndex = todoItems.findIndex((todo) => todo.id === activeTodoId);
+    const overTodoIndex = todoItems.findIndex((todo) => todo.id === overTodoId);
+    reArrangeTodo(arrayMove(todoItems, activeTodoIndex, overTodoIndex));
+  }
+
+  const columnMemo = useMemo(() => {
+    return todoColumns.map((column) => (
+      <TodoColumn
+        key={column.typeName}
+        title={column.title}
+        typeName={column.typeName}
+        todoItems={todoItems.filter((todoItem) => todoItem.status === column.typeName)}
+      />
+    ));
+  }, [todoItems]);
   return (
-    <DndContext
-      onDragOver={handleDragEnd}
-      onDragEnd={handleDragEnd}
-      sensors={sensors}
-      collisionDetection={closestCenter}>
+    <>
       <AddTodoModal />
       <section className='flex flex-1 flex-col gap-3 p-5 text-black lg:flex-row'>
-        {todoColumns.map((column) => (
-          <TodoColumn
-            key={column.typeName}
-            title={column.title}
-            typeName={column.typeName}
-            todoData={todoItems}
-          />
-        ))}
+        <DndContext
+          onDragStart={handleDragStart}
+          onDragOver={handleDragOver}
+          onDragEnd={handleDragEnd}
+          sensors={sensors}
+          collisionDetection={closestCenter}>
+          {columnMemo}
+          <DragOverlay>{activeTodo && <TodoTask todoItems={activeTodo} />}</DragOverlay>,
+        </DndContext>
       </section>
-    </DndContext>
+    </>
   );
 }

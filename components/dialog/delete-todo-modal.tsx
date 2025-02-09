@@ -12,11 +12,12 @@ import {
 } from '@/components/ui/alert-dialog';
 import useTodoStore from '@/store/todo-store';
 import {toast} from 'sonner';
+import {Button} from '../ui/button';
+import {TrashIcon} from 'lucide-react';
 type DeleteTodoModalType = {
-  trigger: React.ReactElement;
   todoId: number;
 };
-export default function DeleteTodoModal({trigger, todoId}: DeleteTodoModalType) {
+export default function DeleteTodoModal({todoId}: DeleteTodoModalType) {
   const deleteTodo = useTodoStore((state) => state.deleteTodo);
   const handleOnTodoDelete = () => {
     deleteTodo(todoId);
@@ -27,7 +28,13 @@ export default function DeleteTodoModal({trigger, todoId}: DeleteTodoModalType) 
   };
   return (
     <AlertDialog>
-      <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>
+      <AlertDialogTrigger asChild>
+        <Button
+          size={'icon'}
+          variant={'destructive'}>
+          <TrashIcon />
+        </Button>
+      </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
